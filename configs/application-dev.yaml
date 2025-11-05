@@ -1,0 +1,45 @@
+server:
+  name: state-service
+  port: 8080
+
+redis:
+  host: localhost:6379
+  timeout: 30
+  username:
+  password:
+  useTLS: false
+
+zookeeper:
+  servers: 127.0.0.1:2181
+
+mongo:
+  uri: mongodb://localhost:27017
+  database: dhauli
+  collection: context
+
+kafka:
+  brokers: 127.0.0.1:9092
+  groupId: context-group
+  topic: context
+  routerTopic: router
+
+discovery:
+  id: context-service
+  fqdn: context-service.localhost.k8s.local
+  protocol: com.mangudaigb.dhauli.events.json.v1
+  topic: context
+  sessionTimeout: 10
+  version: "0.0.1"
+
+tracing:
+  enabled: true
+  Url: http://localhost:14268/api/traces
+
+logger:
+  env: dev
+  level: INFO
+  encoding: console
+  outputPaths:
+    - stdout
+  errorOutputPaths:
+    - stderr
