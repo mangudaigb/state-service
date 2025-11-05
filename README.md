@@ -192,7 +192,7 @@ Includes:
 
 ## Design Idea
 
-`runtimev2` is built to support:
+`runtime/v1` is built to support:
 
 - **Multi-agent orchestration** — agents collaborate under structured workflows.
 - **Observability** — every action, tool invocation, and artifact is traceable.
