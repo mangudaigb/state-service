@@ -41,8 +41,8 @@ func (ss *stepService) CreateByInteractionIdAndExecutionId(interactionId, workfl
 		ss.log.Errorf("Error while getting interaction id: %s to update Step: %s by error: %v", interactionId, step.ID, err)
 		return nil, err
 	}
-	if interaction.Workflow.ID != workflowId || interaction.Workflow.ExecutionGraph.ID != executionId {
-		ss.log.Errorf("Mismatch in ids, i.wf.Id/wfid:%s/%s, i.wf.eg.Id/egId:%s/%s", workflowId, interaction.Workflow.ID, executionId, interaction.Workflow.ExecutionGraph.ID)
+	if interaction.ExecutionFlow.ID != workflowId || interaction.ExecutionFlow.ExecutionGraph.ID != executionId {
+		ss.log.Errorf("Mismatch in ids, i.wf.Id/wfid:%s/%s, i.wf.eg.Id/egId:%s/%s", workflowId, interaction.ExecutionFlow.ID, executionId, interaction.ExecutionFlow.ExecutionGraph.ID)
 		return nil, errors.New("mismatch in workflow or execution graph or both ids")
 	}
 	err = ss.stepRepo.Save(interactionId, workflowId, executionId, step)
@@ -55,7 +55,7 @@ func (ss *stepService) CreateByInteractionIdAndExecutionId(interactionId, workfl
 		Name:   step.Name,
 		Status: step.Status,
 	}
-	interaction.Workflow.ExecutionGraph.Nodes = append(interaction.Workflow.ExecutionGraph.Nodes, en)
+	interaction.ExecutionFlow.ExecutionGraph.Nodes = append(interaction.ExecutionFlow.ExecutionGraph.Nodes, en)
 	err = ss.interactionRepo.Update(interaction)
 	if err != nil {
 		ss.log.Errorf("Error while updating interaction id: %s with step: %s by error: %v", interactionId, step.ID, err)
@@ -80,8 +80,8 @@ func (ss *stepService) UpdateStatusByInteractionIdAndExecutionIdAndId(interactio
 		ss.log.Errorf("Error while getting interaction id: %s to update Step: %s by error: %v", interactionId, stepId, err)
 		return nil, err
 	}
-	if interaction.Workflow.ID != workflowId || interaction.Workflow.ExecutionGraph.ID != executionId {
-		ss.log.Errorf("Mismatch in ids, i.wf.Id/wfid:%s/%s, i.wf.eg.Id/egId:%s/%s", workflowId, interaction.Workflow.ID, executionId, interaction.Workflow.ExecutionGraph.ID)
+	if interaction.ExecutionFlow.ID != workflowId || interaction.ExecutionFlow.ExecutionGraph.ID != executionId {
+		ss.log.Errorf("Mismatch in ids, i.wf.Id/wfid:%s/%s, i.wf.eg.Id/egId:%s/%s", workflowId, interaction.ExecutionFlow.ID, executionId, interaction.ExecutionFlow.ExecutionGraph.ID)
 		return nil, errors.New("mismatch in workflow or execution graph or both ids")
 	}
 
@@ -99,9 +99,9 @@ func (ss *stepService) UpdateStatusByInteractionIdAndExecutionIdAndId(interactio
 		ss.log.Errorf("Error while updating status of step: %v", err)
 		return nil, err
 	}
-	for i, node := range interaction.Workflow.ExecutionGraph.Nodes {
+	for i, node := range interaction.ExecutionFlow.ExecutionGraph.Nodes {
 		if node.StepId == step.ID {
-			interaction.Workflow.ExecutionGraph.Nodes[i].Status = step.Status
+			interaction.ExecutionFlow.ExecutionGraph.Nodes[i].Status = step.Status
 			break
 		}
 	}

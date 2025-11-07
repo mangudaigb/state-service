@@ -17,7 +17,7 @@ type InteractionService interface {
 	DeleteById(interactionId string) error
 
 	UpdatePlan(interactionId, planId string, plan *runtime.Plan) (*runtime.Interaction, error)
-	UpdateWorkflow(interactionId, workflowId string, workflow *runtime.Workflow) (*runtime.Interaction, error)
+	UpdateWorkflow(interactionId, workflowId string, workflow *runtime.ExecutionFlow) (*runtime.Interaction, error)
 	UpdateExecutionGraph(interactionId, workflowId, executionId string, graph *runtime.ExecutionGraph) (*runtime.Interaction, error)
 }
 
@@ -71,14 +71,14 @@ func (is *interactionService) UpdatePlan(interactionId, planId string, plan *run
 	return interaction, nil
 }
 
-func (is *interactionService) UpdateWorkflow(interactionId, workflowId string, workflow *runtime.Workflow) (*runtime.Interaction, error) {
+func (is *interactionService) UpdateWorkflow(interactionId, workflowId string, workflow *runtime.ExecutionFlow) (*runtime.Interaction, error) {
 	interaction, err := is.repo.Get(interactionId)
 	if err != nil {
 		is.log.Errorf("Error while getting interaction id:%s by error: %v", interactionId, err)
 		return nil, err
 	}
-	if interaction.Workflow.ID == workflowId {
-		interaction.Workflow = workflow
+	if interaction.ExecutionFlow.ID == workflowId {
+		interaction.ExecutionFlow = workflow
 	}
 	if err = is.repo.Update(interaction); err != nil {
 		is.log.Errorf("Error while updating interaction id:%s with workflow: %s by error: %v", interactionId, workflow.ID, err)
@@ -93,8 +93,8 @@ func (is *interactionService) UpdateExecutionGraph(interactionId, workflowId, ex
 		is.log.Errorf("Error while getting interaction id:%s by error: %v", interactionId, err)
 		return nil, err
 	}
-	if interaction.Workflow.ID == workflowId && interaction.Workflow.ExecutionGraph.ID == executionId {
-		interaction.Workflow.ExecutionGraph = graph
+	if interaction.ExecutionFlow.ID == workflowId && interaction.ExecutionFlow.ExecutionGraph.ID == executionId {
+		interaction.ExecutionFlow.ExecutionGraph = graph
 	}
 	if err = is.repo.Update(interaction); err != nil {
 		is.log.Errorf("Error while updating interaction id:%s with execution graph: %s by error: %v", interactionId, graph.ID, err)

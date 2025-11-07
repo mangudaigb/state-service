@@ -42,8 +42,8 @@ func (ms *mcpService) CreateByInteractionIdAndWorkflowId(interactionId, workflow
 		ms.log.Errorf("Error while getting interaction id:%s to update MCP by error: %v", interactionId, err)
 		return nil, err
 	}
-	if interaction.Workflow.ID == workflowId {
-		interaction.Workflow.AvailableMcpRefs = append(interaction.Workflow.AvailableMcpRefs, mcp.ID)
+	if interaction.ExecutionFlow.ID == workflowId {
+		interaction.ExecutionFlow.AvailableMcpRefs = append(interaction.ExecutionFlow.AvailableMcpRefs, mcp.ID)
 		err = ms.interactionRepo.Update(interaction)
 		if err != nil {
 			ms.log.Errorf("Error while updating interaction id:%s with mcpId: %s by error: %v", interactionId, mcp.ID, err)

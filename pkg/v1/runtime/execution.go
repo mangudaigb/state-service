@@ -75,12 +75,12 @@ type Step struct {
 	Agent             Agent               `json:"agent"`
 	AvailableToolRefs []MCPToolRef        `json:"availableToolRefs"`
 	InputContext      Context             `json:"inputContext"`
-	OutputContext     Context             `json:"outputContext"`
+	ExecutionContext  Context             `json:"executionContext"`
 	Query             Query               `json:"query"`
 	Answer            Answer              `json:"answer"`
 	Result            Context             `json:"result"` // I might not need this but for an intermediate step
 	Artifacts         []Artifact          `json:"artifacts,omitempty"`
-	CuratedTools      []McpToolInvocation `json:"actions,omitempty"`
+	ExecutedTools     []McpToolInvocation `json:"actions,omitempty"`
 	StartedAt         time.Time           `json:"startedAt"`
 	FinishedAt        time.Time           `json:"finishedAt"`
 	InputStepID       string              `json:"inputStepId,omitempty"`
@@ -117,8 +117,8 @@ type ExecutionGraph struct {
 	Version int             `json:"version"`
 }
 
-// Workflow describes the full execution structure and participating agents.
-type Workflow struct {
+// ExecutionFlow describes the full execution structure and participating agents.
+type ExecutionFlow struct {
 	ID               string            `json:"id"`
 	Name             string            `json:"name"`
 	Description      string            `json:"description"`
@@ -130,17 +130,17 @@ type Workflow struct {
 }
 
 // Interaction represents a single user ↔ AI exchange (atomic Q&A cycle).
-// Causal relationship: BaseQuery, BaseContext -> Plan -> Workflow -> Steps -> Messages, Artifacts -> Answer
+// Causal relationship: BaseQuery, BaseContext -> Plan -> ExecutionFlow -> Steps -> Messages, Artifacts -> Answer
 type Interaction struct {
-	ID          string     `json:"id"`
-	BaseQuery   *Query     `json:"baseQuery"`
-	BaseContext *Context   `json:"baseContext"`
-	Plan        *Plan      `json:"plan"`
-	Workflow    *Workflow  `json:"workflow"`
-	CurrentStep string     `json:"currentStep"`
-	StepIds     []string   `json:"stepIds"`
-	Messages    []Message  `json:"messages"`
-	Summary     string     `json:"summary,omitempty"`
-	CreatedAt   time.Time  `json:"createdAt"`
-	CompletedAt *time.Time `json:"completedAt,omitempty"`
+	ID            string         `json:"id"`
+	BaseQuery     *Query         `json:"baseQuery"`
+	BaseContext   *Context       `json:"baseContext"`
+	Plan          *Plan          `json:"plan"`
+	ExecutionFlow *ExecutionFlow `json:"ExecutionFlow"`
+	CurrentStep   string         `json:"currentStep"`
+	StepIds       []string       `json:"stepIds"`
+	Messages      []Message      `json:"messages"`
+	Summary       string         `json:"summary,omitempty"`
+	CreatedAt     time.Time      `json:"createdAt"`
+	CompletedAt   *time.Time     `json:"completedAt,omitempty"`
 }

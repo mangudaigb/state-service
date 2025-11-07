@@ -100,9 +100,9 @@ func (ih *InteractionHandler) UpdatePlanHandler(c *gin.Context) {
 func (ih *InteractionHandler) UpdateWorkflowHandler(c *gin.Context) {
 	interactionId := c.Param("interactionId")
 	workflowId := c.Param("workflowId")
-	var req runtime.Workflow
+	var req runtime.ExecutionFlow
 	if err := c.ShouldBindJSON(&req); err != nil {
-		ih.log.Errorf("Error while binding request data to Workflow: %v", err)
+		ih.log.Errorf("Error while binding request data to ExecutionFlow: %v", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
