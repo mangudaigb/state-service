@@ -2,7 +2,7 @@ package internal
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/jibitesh/state-service/internal/handler"
+	"github.com/mangudaigb/state-service/internal/handler"
 )
 
 func SetupRouter(ge *gin.Engine, ih *handler.InteractionHandler, sh *handler.StepHandler, mh *handler.McpHandler) {

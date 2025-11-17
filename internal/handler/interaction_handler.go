@@ -4,9 +4,9 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/jibitesh/state-service/internal/svc"
-	"github.com/jibitesh/state-service/pkg/v1/runtime"
 	"github.com/mangudaigb/dhauli-base/logger"
+	"github.com/mangudaigb/state-service/internal/svc"
+	"github.com/mangudaigb/state-service/pkg/v1/runtime"
 	"go.opentelemetry.io/otel/trace"
 )
 
@@ -17,8 +17,9 @@ type InteractionHandler struct {
 }
 
 func (ih *InteractionHandler) GetInteractionHandler(c *gin.Context) {
+	ctx := c.Request.Context()
 	interactionId := c.Param("interactionId")
-	interaction, err := ih.svc.GetById(interactionId)
+	interaction, err := ih.svc.GetById(ctx, interactionId)
 	if err != nil {
 		ih.log.Errorf("Error while getting interaction by id: %v", err)
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
@@ -28,13 +29,14 @@ func (ih *InteractionHandler) GetInteractionHandler(c *gin.Context) {
 }
 
 func (ih *InteractionHandler) CreateInteractionHandler(c *gin.Context) {
+	ctx := c.Request.Context()
 	var req runtime.Interaction
 	if err := c.ShouldBindJSON(&req); err != nil {
 		ih.log.Errorf("Error while binding request data: %v", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	interaction, err := ih.svc.Create(&req)
+	interaction, err := ih.svc.Create(ctx, &req)
 	if err != nil {
 		ih.log.Errorf("Error while creating interaction: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -44,6 +46,7 @@ func (ih *InteractionHandler) CreateInteractionHandler(c *gin.Context) {
 }
 
 func (ih *InteractionHandler) UpdateInteractionHandler(c *gin.Context) {
+	ctx := c.Request.Context()
 	interactionId := c.Param("interactionId")
 	var req runtime.Interaction
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -56,7 +59,7 @@ func (ih *InteractionHandler) UpdateInteractionHandler(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid interaction id"})
 		return
 	}
-	interaction, err := ih.svc.Update(&req)
+	interaction, err := ih.svc.Update(ctx, &req)
 	if err != nil {
 		ih.log.Errorf("Error while updating interaction: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -66,8 +69,9 @@ func (ih *InteractionHandler) UpdateInteractionHandler(c *gin.Context) {
 }
 
 func (ih *InteractionHandler) DeleteInteractionHandler(c *gin.Context) {
+	ctx := c.Request.Context()
 	interactionId := c.Param("interactionId")
-	if err := ih.svc.DeleteById(interactionId); err != nil {
+	if err := ih.svc.DeleteById(ctx, interactionId); err != nil {
 		ih.log.Errorf("Error while deleting interaction: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -76,6 +80,7 @@ func (ih *InteractionHandler) DeleteInteractionHandler(c *gin.Context) {
 }
 
 func (ih *InteractionHandler) UpdatePlanHandler(c *gin.Context) {
+	ctx := c.Request.Context()
 	interactionId := c.Param("interactionId")
 	planId := c.Param("planId")
 	var req runtime.Plan
@@ -88,7 +93,7 @@ func (ih *InteractionHandler) UpdatePlanHandler(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid plan id"})
 		return
 	}
-	interaction, err := ih.svc.UpdatePlan(interactionId, req.ID, &req)
+	interaction, err := ih.svc.UpdatePlan(ctx, interactionId, req.ID, &req)
 	if err != nil {
 		ih.log.Errorf("Error while updating plan: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -98,6 +103,7 @@ func (ih *InteractionHandler) UpdatePlanHandler(c *gin.Context) {
 }
 
 func (ih *InteractionHandler) UpdateWorkflowHandler(c *gin.Context) {
+	ctx := c.Request.Context()
 	interactionId := c.Param("interactionId")
 	workflowId := c.Param("workflowId")
 	var req runtime.ExecutionFlow
@@ -110,7 +116,7 @@ func (ih *InteractionHandler) UpdateWorkflowHandler(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid workflow id"})
 		return
 	}
-	interaction, err := ih.svc.UpdateWorkflow(interactionId, req.ID, &req)
+	interaction, err := ih.svc.UpdateWorkflow(ctx, interactionId, req.ID, &req)
 	if err != nil {
 		ih.log.Errorf("Error while updating workflow: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -120,6 +126,7 @@ func (ih *InteractionHandler) UpdateWorkflowHandler(c *gin.Context) {
 }
 
 func (ih *InteractionHandler) UpdateExecutionGraphHandler(c *gin.Context) {
+	ctx := c.Request.Context()
 	interactionId := c.Param("interactionId")
 	workflowId := c.Param("workflowId")
 	executionId := c.Param("executionId")
@@ -133,7 +140,7 @@ func (ih *InteractionHandler) UpdateExecutionGraphHandler(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid execution id"})
 		return
 	}
-	interaction, err := ih.svc.UpdateExecutionGraph(interactionId, workflowId, executionId, &req)
+	interaction, err := ih.svc.UpdateExecutionGraph(ctx, interactionId, workflowId, executionId, &req)
 	if err != nil {
 		ih.log.Errorf("Error while updating execution graph: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})

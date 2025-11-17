@@ -1,22 +1,23 @@
 package svc
 
 import (
+	"context"
 	"errors"
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/jibitesh/state-service/internal/repo"
-	"github.com/jibitesh/state-service/pkg/v1/runtime"
 	"github.com/mangudaigb/dhauli-base/logger"
+	"github.com/mangudaigb/state-service/internal/repo"
+	"github.com/mangudaigb/state-service/pkg/v1/runtime"
 	"go.opentelemetry.io/otel/trace"
 )
 
 type StepService interface {
-	GetByInteractionIdAndExecutionIdAndId(interactionId, workflowId, executionId string, stepId string) (*runtime.Step, error)
-	CreateByInteractionIdAndExecutionId(interactionId, workflowId, executionId string, step *runtime.Step) (*runtime.Step, error)
-	UpdateByInteractionIdAndExecutionId(interactionId, workflowId, executionId string, step *runtime.Step) (*runtime.Step, error)
-	UpdateStatusByInteractionIdAndExecutionIdAndId(interactionId, workflowId, executionId, stepId string, status runtime.Status) (*runtime.Step, error)
-	DeleteByInteractionIdAndExecutionIdAndId(interactionId, workflowId, executionId, stepId string) error
+	GetByInteractionIdAndExecutionIdAndId(ctx context.Context, interactionId, workflowId, executionId string, stepId string) (*runtime.Step, error)
+	CreateByInteractionIdAndExecutionId(ctx context.Context, interactionId, workflowId, executionId string, step *runtime.Step) (*runtime.Step, error)
+	UpdateByInteractionIdAndExecutionId(ctx context.Context, interactionId, workflowId, executionId string, step *runtime.Step) (*runtime.Step, error)
+	UpdateStatusByInteractionIdAndExecutionIdAndId(ctx context.Context, interactionId, workflowId, executionId, stepId string, status runtime.Status) (*runtime.Step, error)
+	DeleteByInteractionIdAndExecutionIdAndId(ctx context.Context, interactionId, workflowId, executionId, stepId string) error
 }
 
 type stepService struct {
@@ -26,17 +27,17 @@ type stepService struct {
 	interactionRepo repo.InteractionRepo
 }
 
-func (ss *stepService) GetByInteractionIdAndExecutionIdAndId(interactionId, workflowId, executionId, stepId string) (*runtime.Step, error) {
-	return ss.stepRepo.Get(interactionId, workflowId, executionId, stepId)
+func (ss *stepService) GetByInteractionIdAndExecutionIdAndId(ctx context.Context, interactionId, workflowId, executionId, stepId string) (*runtime.Step, error) {
+	return ss.stepRepo.Get(ctx, interactionId, workflowId, executionId, stepId)
 }
 
 // CreateByInteractionIdAndExecutionId Saves the step and updates the reference in execution graph
-func (ss *stepService) CreateByInteractionIdAndExecutionId(interactionId, workflowId, executionId string, step *runtime.Step) (*runtime.Step, error) {
+func (ss *stepService) CreateByInteractionIdAndExecutionId(ctx context.Context, interactionId, workflowId, executionId string, step *runtime.Step) (*runtime.Step, error) {
 	if step.ID == "" {
 		step.ID = uuid.NewString()
 	}
 	step.Status = runtime.StatusPending
-	interaction, err := ss.interactionRepo.Get(interactionId)
+	interaction, err := ss.interactionRepo.Get(ctx, interactionId)
 	if err != nil {
 		ss.log.Errorf("Error while getting interaction id: %s to update Step: %s by error: %v", interactionId, step.ID, err)
 		return nil, err
@@ -45,7 +46,7 @@ func (ss *stepService) CreateByInteractionIdAndExecutionId(interactionId, workfl
 		ss.log.Errorf("Mismatch in ids, i.wf.Id/wfid:%s/%s, i.wf.eg.Id/egId:%s/%s", workflowId, interaction.ExecutionFlow.ID, executionId, interaction.ExecutionFlow.ExecutionGraph.ID)
 		return nil, errors.New("mismatch in workflow or execution graph or both ids")
 	}
-	err = ss.stepRepo.Save(interactionId, workflowId, executionId, step)
+	err = ss.stepRepo.Save(ctx, interactionId, workflowId, executionId, step)
 	if err != nil {
 		ss.log.Errorf("Error while creating step: %v for interaction id: %s", err, step.ID)
 		return nil, err
@@ -56,7 +57,7 @@ func (ss *stepService) CreateByInteractionIdAndExecutionId(interactionId, workfl
 		Status: step.Status,
 	}
 	interaction.ExecutionFlow.ExecutionGraph.Nodes = append(interaction.ExecutionFlow.ExecutionGraph.Nodes, en)
-	err = ss.interactionRepo.Update(interaction)
+	err = ss.interactionRepo.Update(ctx, interaction)
 	if err != nil {
 		ss.log.Errorf("Error while updating interaction id: %s with step: %s by error: %v", interactionId, step.ID, err)
 		return nil, err
@@ -64,8 +65,8 @@ func (ss *stepService) CreateByInteractionIdAndExecutionId(interactionId, workfl
 	return step, nil
 }
 
-func (ss *stepService) UpdateByInteractionIdAndExecutionId(interactionId, workflowId, executionId string, step *runtime.Step) (*runtime.Step, error) {
-	err := ss.stepRepo.Update(interactionId, workflowId, executionId, step)
+func (ss *stepService) UpdateByInteractionIdAndExecutionId(ctx context.Context, interactionId, workflowId, executionId string, step *runtime.Step) (*runtime.Step, error) {
+	err := ss.stepRepo.Update(ctx, interactionId, workflowId, executionId, step)
 	if err != nil {
 		ss.log.Errorf("Error while updating step: %v", err)
 		return nil, err
@@ -74,8 +75,8 @@ func (ss *stepService) UpdateByInteractionIdAndExecutionId(interactionId, workfl
 }
 
 // UpdateStatusByInteractionIdAndExecutionIdAndId Saves the step and updates the status in the step reference in execution graph
-func (ss *stepService) UpdateStatusByInteractionIdAndExecutionIdAndId(interactionId, workflowId, executionId, stepId string, status runtime.Status) (*runtime.Step, error) {
-	interaction, err := ss.interactionRepo.Get(interactionId)
+func (ss *stepService) UpdateStatusByInteractionIdAndExecutionIdAndId(ctx context.Context, interactionId, workflowId, executionId, stepId string, status runtime.Status) (*runtime.Step, error) {
+	interaction, err := ss.interactionRepo.Get(ctx, interactionId)
 	if err != nil {
 		ss.log.Errorf("Error while getting interaction id: %s to update Step: %s by error: %v", interactionId, stepId, err)
 		return nil, err
@@ -85,7 +86,7 @@ func (ss *stepService) UpdateStatusByInteractionIdAndExecutionIdAndId(interactio
 		return nil, errors.New("mismatch in workflow or execution graph or both ids")
 	}
 
-	step, err := ss.stepRepo.Get(interactionId, workflowId, executionId, stepId)
+	step, err := ss.stepRepo.Get(ctx, interactionId, workflowId, executionId, stepId)
 	if err != nil {
 		ss.log.Errorf("Error while getting step by id: %v", err)
 		return nil, err
@@ -94,7 +95,7 @@ func (ss *stepService) UpdateStatusByInteractionIdAndExecutionIdAndId(interactio
 		step.FinishedAt = time.Now()
 	}
 	step.Status = status
-	err = ss.stepRepo.Update(interactionId, workflowId, executionId, step)
+	err = ss.stepRepo.Update(ctx, interactionId, workflowId, executionId, step)
 	if err != nil {
 		ss.log.Errorf("Error while updating status of step: %v", err)
 		return nil, err
@@ -105,7 +106,7 @@ func (ss *stepService) UpdateStatusByInteractionIdAndExecutionIdAndId(interactio
 			break
 		}
 	}
-	err = ss.interactionRepo.Update(interaction)
+	err = ss.interactionRepo.Update(ctx, interaction)
 	if err != nil {
 		ss.log.Errorf("Error while updating interaction id: %s with step: %s by error: %v", interactionId, step.ID, err)
 		return nil, err
@@ -113,8 +114,8 @@ func (ss *stepService) UpdateStatusByInteractionIdAndExecutionIdAndId(interactio
 	return step, nil
 }
 
-func (ss *stepService) DeleteByInteractionIdAndExecutionIdAndId(interactionId, workflowId, executionId, stepId string) error {
-	return ss.stepRepo.Delete(interactionId, workflowId, executionId, stepId)
+func (ss *stepService) DeleteByInteractionIdAndExecutionIdAndId(ctx context.Context, interactionId, workflowId, executionId, stepId string) error {
+	return ss.stepRepo.Delete(ctx, interactionId, workflowId, executionId, stepId)
 }
 
 func NewStepService(log *logger.Logger, tr trace.Tracer, repo repo.StepRepo) StepService {

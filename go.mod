@@ -1,4 +1,4 @@
-module github.com/jibitesh/state-service
+module github.com/mangudaigb/state-service
 
 go 1.24.8
 

@@ -4,9 +4,9 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/jibitesh/state-service/internal/svc"
-	"github.com/jibitesh/state-service/pkg/v1/runtime"
 	"github.com/mangudaigb/dhauli-base/logger"
+	"github.com/mangudaigb/state-service/internal/svc"
+	"github.com/mangudaigb/state-service/pkg/v1/runtime"
 	"go.opentelemetry.io/otel/trace"
 )
 
@@ -17,11 +17,12 @@ type StepHandler struct {
 }
 
 func (sh *StepHandler) GetStepHandler(c *gin.Context) {
+	ctx := c.Request.Context()
 	interactionId := c.Param("interactionId")
 	workflowId := c.Param("workflowId")
 	executionId := c.Param("executionId")
 	stepId := c.Param("stepId")
-	step, err := sh.svc.GetByInteractionIdAndExecutionIdAndId(interactionId, workflowId, executionId, stepId)
+	step, err := sh.svc.GetByInteractionIdAndExecutionIdAndId(ctx, interactionId, workflowId, executionId, stepId)
 	if err != nil {
 		sh.log.Errorf("Error while getting step: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -31,6 +32,7 @@ func (sh *StepHandler) GetStepHandler(c *gin.Context) {
 }
 
 func (sh *StepHandler) CreateStepHandler(c *gin.Context) {
+	ctx := c.Request.Context()
 	interactionId := c.Param("interactionId")
 	workflowId := c.Param("workflowId")
 	executionId := c.Param("executionId")
@@ -40,7 +42,7 @@ func (sh *StepHandler) CreateStepHandler(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	step, err := sh.svc.CreateByInteractionIdAndExecutionId(interactionId, workflowId, executionId, &req)
+	step, err := sh.svc.CreateByInteractionIdAndExecutionId(ctx, interactionId, workflowId, executionId, &req)
 	if err != nil {
 		sh.log.Errorf("Error while creating step: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -50,6 +52,7 @@ func (sh *StepHandler) CreateStepHandler(c *gin.Context) {
 }
 
 func (sh *StepHandler) UpdateStepHandler(c *gin.Context) {
+	ctx := c.Request.Context()
 	interactionId := c.Param("interactionId")
 	workflowId := c.Param("workflowId")
 	executionId := c.Param("executionId")
@@ -65,7 +68,7 @@ func (sh *StepHandler) UpdateStepHandler(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid step id"})
 		return
 	}
-	step, err := sh.svc.UpdateByInteractionIdAndExecutionId(interactionId, workflowId, executionId, &req)
+	step, err := sh.svc.UpdateByInteractionIdAndExecutionId(ctx, interactionId, workflowId, executionId, &req)
 	if err != nil {
 		sh.log.Errorf("Error while updating step: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -75,6 +78,7 @@ func (sh *StepHandler) UpdateStepHandler(c *gin.Context) {
 }
 
 func (sh *StepHandler) UpdateStatusHandler(c *gin.Context) {
+	ctx := c.Request.Context()
 	interactionId := c.Param("interactionId")
 	workflowId := c.Param("workflowId")
 	executionId := c.Param("executionId")
@@ -87,7 +91,7 @@ func (sh *StepHandler) UpdateStatusHandler(c *gin.Context) {
 		return
 	}
 	s := runtime.Status(status)
-	step, err := sh.svc.UpdateStatusByInteractionIdAndExecutionIdAndId(interactionId, workflowId, executionId, stepId, s)
+	step, err := sh.svc.UpdateStatusByInteractionIdAndExecutionIdAndId(ctx, interactionId, workflowId, executionId, stepId, s)
 	if err != nil {
 		sh.log.Errorf("Error while updating step status: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -97,11 +101,12 @@ func (sh *StepHandler) UpdateStatusHandler(c *gin.Context) {
 }
 
 func (sh *StepHandler) DeleteStepHandler(c *gin.Context) {
+	ctx := c.Request.Context()
 	interactionId := c.Param("interactionId")
 	workflowId := c.Param("workflowId")
 	executionId := c.Param("executionId")
 	stepId := c.Param("stepId")
-	if err := sh.svc.DeleteByInteractionIdAndExecutionIdAndId(interactionId, workflowId, executionId, stepId); err != nil {
+	if err := sh.svc.DeleteByInteractionIdAndExecutionIdAndId(ctx, interactionId, workflowId, executionId, stepId); err != nil {
 		sh.log.Errorf("Error while deleting step: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

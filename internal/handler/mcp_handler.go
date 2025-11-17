@@ -4,9 +4,9 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/jibitesh/state-service/internal/svc"
-	"github.com/jibitesh/state-service/pkg/v1/runtime"
 	"github.com/mangudaigb/dhauli-base/logger"
+	"github.com/mangudaigb/state-service/internal/svc"
+	"github.com/mangudaigb/state-service/pkg/v1/runtime"
 	"go.opentelemetry.io/otel/trace"
 )
 
@@ -17,10 +17,11 @@ type McpHandler struct {
 }
 
 func (mh *McpHandler) GetMcpHandler(c *gin.Context) {
+	ctx := c.Request.Context()
 	interactionId := c.Param("interactionId")
 	workflowId := c.Param("workflowId")
 	mcpId := c.Param("mcpId")
-	mcp, err := mh.svc.GetByInteractionIdAndWorkflowIdAndId(interactionId, workflowId, mcpId)
+	mcp, err := mh.svc.GetByInteractionIdAndWorkflowIdAndId(ctx, interactionId, workflowId, mcpId)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
@@ -29,6 +30,7 @@ func (mh *McpHandler) GetMcpHandler(c *gin.Context) {
 }
 
 func (mh *McpHandler) CreateMcpHandler(c *gin.Context) {
+	ctx := c.Request.Context()
 	interactionId := c.Param("interactionId")
 	workflowId := c.Param("workflowId")
 	var req runtime.MCP
@@ -37,7 +39,7 @@ func (mh *McpHandler) CreateMcpHandler(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	mcp, err := mh.svc.CreateByInteractionIdAndWorkflowId(interactionId, workflowId, &req)
+	mcp, err := mh.svc.CreateByInteractionIdAndWorkflowId(ctx, interactionId, workflowId, &req)
 	if err != nil {
 		mh.log.Errorf("Error while creating MCP: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -47,6 +49,7 @@ func (mh *McpHandler) CreateMcpHandler(c *gin.Context) {
 }
 
 func (mh *McpHandler) UpdateMcpHandler(c *gin.Context) {
+	ctx := c.Request.Context()
 	interactionId := c.Param("interactionId")
 	workflowId := c.Param("workflowId")
 	mcpId := c.Param("mcpId")
@@ -61,7 +64,7 @@ func (mh *McpHandler) UpdateMcpHandler(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid mcp id"})
 		return
 	}
-	mcp, err := mh.svc.UpdateByInteractionIdAndWorkflowId(interactionId, workflowId, &req)
+	mcp, err := mh.svc.UpdateByInteractionIdAndWorkflowId(ctx, interactionId, workflowId, &req)
 	if err != nil {
 		mh.log.Errorf("Error while updating MCP: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -71,6 +74,7 @@ func (mh *McpHandler) UpdateMcpHandler(c *gin.Context) {
 }
 
 func (mh *McpHandler) AddToolHandler(c *gin.Context) {
+	ctx := c.Request.Context()
 	interactionId := c.Param("interactionId")
 	workflowId := c.Param("workflowId")
 	mcpId := c.Param("mcpId")
@@ -80,7 +84,7 @@ func (mh *McpHandler) AddToolHandler(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	mcp, err := mh.svc.AddTool(interactionId, workflowId, mcpId, &req)
+	mcp, err := mh.svc.AddTool(ctx, interactionId, workflowId, mcpId, &req)
 	if err != nil {
 		mh.log.Errorf("Error while adding tool to MCP: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -90,10 +94,11 @@ func (mh *McpHandler) AddToolHandler(c *gin.Context) {
 }
 
 func (mh *McpHandler) DeleteMcpHandler(c *gin.Context) {
+	ctx := c.Request.Context()
 	interactionId := c.Param("interactionId")
 	workflowId := c.Param("workflowId")
 	mcpId := c.Param("mcpId")
-	if err := mh.svc.DeleteByInteractionIdAndWorkflowIdAndId(interactionId, workflowId, mcpId); err != nil {
+	if err := mh.svc.DeleteByInteractionIdAndWorkflowIdAndId(ctx, interactionId, workflowId, mcpId); err != nil {
 		mh.log.Errorf("Error while deleting MCP: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

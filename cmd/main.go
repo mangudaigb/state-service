@@ -4,11 +4,11 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/jibitesh/state-service/pkg"
 	"github.com/mangudaigb/dhauli-base/config"
 	"github.com/mangudaigb/dhauli-base/discover"
 	"github.com/mangudaigb/dhauli-base/logger"
 	"github.com/mangudaigb/dhauli-base/tracing"
+	"github.com/mangudaigb/state-service/pkg"
 )
 
 func main() {

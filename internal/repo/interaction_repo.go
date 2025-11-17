@@ -1,18 +1,20 @@
 package repo
 
 import (
-	"github.com/jibitesh/state-service/pkg/v1/runtime"
+	"context"
+
 	"github.com/mangudaigb/dhauli-base/config"
 	"github.com/mangudaigb/dhauli-base/db"
 	"github.com/mangudaigb/dhauli-base/logger"
+	"github.com/mangudaigb/state-service/pkg/v1/runtime"
 	"go.opentelemetry.io/otel/trace"
 )
 
 type InteractionRepo interface {
-	Get(iid string) (*runtime.Interaction, error)
-	Save(interaction *runtime.Interaction) error
-	Update(interaction *runtime.Interaction) error
-	Delete(iid string) error
+	Get(ctx context.Context, iid string) (*runtime.Interaction, error)
+	Save(ctx context.Context, interaction *runtime.Interaction) error
+	Update(ctx context.Context, interaction *runtime.Interaction) error
+	Delete(ctx context.Context, iid string) error
 	Close()
 }
 
@@ -23,20 +25,20 @@ type RedisInteractionRepo struct {
 	store db.RedisStore[runtime.Interaction]
 }
 
-func (ir *RedisInteractionRepo) Get(iid string) (*runtime.Interaction, error) {
-	return ir.store.Get(iid)
+func (ir *RedisInteractionRepo) Get(ctx context.Context, iid string) (*runtime.Interaction, error) {
+	return ir.store.Get(ctx, iid)
 }
 
-func (ir *RedisInteractionRepo) Save(interaction *runtime.Interaction) error {
-	return ir.store.Set("interaction:"+interaction.ID, interaction)
+func (ir *RedisInteractionRepo) Save(ctx context.Context, interaction *runtime.Interaction) error {
+	return ir.store.Set(ctx, "interaction:"+interaction.ID, interaction)
 }
 
-func (ir *RedisInteractionRepo) Update(interaction *runtime.Interaction) error {
-	return ir.store.Set("interaction:"+interaction.ID, interaction)
+func (ir *RedisInteractionRepo) Update(ctx context.Context, interaction *runtime.Interaction) error {
+	return ir.store.Set(ctx, "interaction:"+interaction.ID, interaction)
 }
 
-func (ir *RedisInteractionRepo) Delete(iid string) error {
-	return ir.store.Delete("interaction:" + iid)
+func (ir *RedisInteractionRepo) Delete(ctx context.Context, iid string) error {
+	return ir.store.Delete(ctx, "interaction:"+iid)
 }
 
 func (ir *RedisInteractionRepo) Close() {
@@ -46,8 +48,8 @@ func (ir *RedisInteractionRepo) Close() {
 	}
 }
 
-func NewInteractionRepo(cfg *config.Config, log *logger.Logger, tr trace.Tracer) (InteractionRepo, error) {
-	interactionStore, err := db.NewRedisStore[runtime.Interaction](cfg, log)
+func NewInteractionRepo(ctx context.Context, cfg *config.Config, log *logger.Logger, tr trace.Tracer) (InteractionRepo, error) {
+	interactionStore, err := db.NewRedisStore[runtime.Interaction](ctx, cfg, log)
 	if err != nil {
 		log.Errorf("Error while creating interaction redis store: %v", err)
 		return nil, err

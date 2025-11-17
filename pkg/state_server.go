@@ -9,12 +9,12 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/jibitesh/state-service/internal"
-	"github.com/jibitesh/state-service/internal/handler"
-	"github.com/jibitesh/state-service/internal/repo"
-	"github.com/jibitesh/state-service/internal/svc"
 	"github.com/mangudaigb/dhauli-base/config"
 	"github.com/mangudaigb/dhauli-base/logger"
+	"github.com/mangudaigb/state-service/internal"
+	"github.com/mangudaigb/state-service/internal/handler"
+	"github.com/mangudaigb/state-service/internal/repo"
+	"github.com/mangudaigb/state-service/internal/svc"
 	"go.opentelemetry.io/otel/trace"
 	"golang.org/x/net/context"
 )
@@ -26,15 +26,15 @@ type StateServer struct {
 }
 
 func (ss *StateServer) Start() {
-	iRepo, err := repo.NewInteractionRepo(ss.cfg, ss.log, ss.tr)
+	iRepo, err := repo.NewInteractionRepo(context.Background(), ss.cfg, ss.log, ss.tr)
 	if err != nil {
 		ss.log.Fatalf("Error while creating interaction repo: %v", err)
 	}
-	mRepo, err := repo.NewMcpRepo(ss.cfg, ss.log, ss.tr)
+	mRepo, err := repo.NewMcpRepo(context.Background(), ss.cfg, ss.log, ss.tr)
 	if err != nil {
 		ss.log.Fatalf("Error while creating mcp repo: %v", err)
 	}
-	sRepo, err := repo.NewStepRepo(ss.cfg, ss.log, ss.tr)
+	sRepo, err := repo.NewStepRepo(context.Background(), ss.cfg, ss.log, ss.tr)
 	if err != nil {
 		ss.log.Fatalf("Error while creating step repo: %v", err)
 	}
