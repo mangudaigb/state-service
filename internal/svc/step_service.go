@@ -7,8 +7,8 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/mangudaigb/dhauli-base/logger"
+	"github.com/mangudaigb/dhauli-base/types/runtime"
 	"github.com/mangudaigb/state-service/internal/repo"
-	"github.com/mangudaigb/state-service/pkg/v1/runtime"
 	"go.opentelemetry.io/otel/trace"
 )
 

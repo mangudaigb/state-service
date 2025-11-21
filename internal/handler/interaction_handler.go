@@ -5,8 +5,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/mangudaigb/dhauli-base/logger"
+	"github.com/mangudaigb/dhauli-base/types/runtime"
 	"github.com/mangudaigb/state-service/internal/svc"
-	"github.com/mangudaigb/state-service/pkg/v1/runtime"
 	"go.opentelemetry.io/otel/trace"
 )
 
@@ -105,7 +105,7 @@ func (ih *InteractionHandler) UpdatePlanHandler(c *gin.Context) {
 func (ih *InteractionHandler) UpdateWorkflowHandler(c *gin.Context) {
 	ctx := c.Request.Context()
 	interactionId := c.Param("interactionId")
-	workflowId := c.Param("workflowId")
+	workflowId := c.Param("executionFlowId")
 	var req runtime.ExecutionFlow
 	if err := c.ShouldBindJSON(&req); err != nil {
 		ih.log.Errorf("Error while binding request data to ExecutionFlow: %v", err)
@@ -116,7 +116,7 @@ func (ih *InteractionHandler) UpdateWorkflowHandler(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid workflow id"})
 		return
 	}
-	interaction, err := ih.svc.UpdateWorkflow(ctx, interactionId, req.ID, &req)
+	interaction, err := ih.svc.UpdateExecutionFlow(ctx, interactionId, req.ID, &req)
 	if err != nil {
 		ih.log.Errorf("Error while updating workflow: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -128,8 +128,8 @@ func (ih *InteractionHandler) UpdateWorkflowHandler(c *gin.Context) {
 func (ih *InteractionHandler) UpdateExecutionGraphHandler(c *gin.Context) {
 	ctx := c.Request.Context()
 	interactionId := c.Param("interactionId")
-	workflowId := c.Param("workflowId")
-	executionId := c.Param("executionId")
+	workflowId := c.Param("executionFlowId")
+	executionId := c.Param("executionGraphId")
 	var req runtime.ExecutionGraph
 	if err := c.ShouldBindJSON(&req); err != nil {
 		ih.log.Errorf("Error while binding request data to ExecutionGraph: %v", err)

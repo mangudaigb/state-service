@@ -5,8 +5,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/mangudaigb/dhauli-base/logger"
+	"github.com/mangudaigb/dhauli-base/types/runtime"
 	"github.com/mangudaigb/state-service/internal/svc"
-	"github.com/mangudaigb/state-service/pkg/v1/runtime"
 	"go.opentelemetry.io/otel/trace"
 )
 

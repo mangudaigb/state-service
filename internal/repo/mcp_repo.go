@@ -6,7 +6,7 @@ import (
 	"github.com/mangudaigb/dhauli-base/config"
 	"github.com/mangudaigb/dhauli-base/db"
 	"github.com/mangudaigb/dhauli-base/logger"
-	"github.com/mangudaigb/state-service/pkg/v1/runtime"
+	"github.com/mangudaigb/dhauli-base/types/runtime"
 	"go.opentelemetry.io/otel/trace"
 )
 
